@@ -21,7 +21,7 @@ def bytes_to_human(n: int) -> str:
         if f < 1024.0:
             return f"{f:.2f} {u}"
         f /= 1024.0
-    return f"{f:.2f} PB"
+    return f"{f:.2f} PB
 
 
 def is_dangerous_path(p: Path) -> bool:
