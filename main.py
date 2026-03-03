@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable, List
 
+
 @dataclass
 class Candidate:
     Path: Path
@@ -55,7 +56,7 @@ def setup_logger(log_file: str | None) -> None:
         handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(message)s"
+        format="%(asctime)s | %(levelname)s | %(message)s",
         handlers=handlers,
     )
 
@@ -125,4 +126,4 @@ def main() -> int:
         logging.error(f"Path inválido (não existe ou não é diretório): {base}")
         return 2
     
-    
+   
