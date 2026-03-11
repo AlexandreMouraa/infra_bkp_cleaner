@@ -22,7 +22,7 @@ def bytes_to_human(n: int) -> str:
         if f < 1024.0:
             return f"{f:.2f} {u}"
         f /= 1024.0
-    return f"{f:.2f} PB
+    return f"{f:.2f} PB"
 
 
 def is_dangerous_path(p: Path) -> bool:
@@ -100,6 +100,25 @@ def delete_candidates(candidates: List[Candidate]) -> int:
         
     return delete
 
+def print_summary(candidates: List[Candidate], deleted: int, dry_run: bool) -> None:
+    """Exibe o Resultado final da operação."""
+    total_size = sum(c.size_bytes for c in candidates)
+    mode = "DRY_RUN (simulação)" if dry_run else "EXECUÇÃO"
+
+    logging.info("=" * 60)
+    logging.info(f"RESUMO - {mode}")
+    logging.info(f"  Arquivos encontrados: {len(candidates)}")
+    logging.info(f"  Tamanho total:   {bytes_to_human(total_size)}")
+
+    if not dry_run:
+        logging.info(f"   Arquivos removidos: {deleted}")
+        failed = len(candidates) - deleted
+        if failed > 0:
+            logging.warning(f"  Falhas:    {failed}")
+
+    logging.info("=" * 60)
+
+
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
@@ -125,5 +144,23 @@ def main() -> int:
     if not base.exists() or not base.is_dir():
         logging.error(f"Path inválido (não existe ou não é diretório): {base}")
         return 2
-    
+
+    if is_dangerous_path(base):
+        logging.error(
+                f"Path Bloqueado por segurança: {base.resolve()} - "
+                "não é permitido limpar raiz, home ou paths muito curtos."
+                )
+        return 3
+
+    logging.info("Escaneando: {base.resolve()} (retenção: {args.days} dias, recursivo: {args.recursive})")
+    candidates = collect_candidates(base, args.days, args.recursive)
+
+    if not candidates:
+        logging.info("Nenhum arquivo encontrado fora da renteção. Nada a fazer.")
+        return 0
    
+    if args.dry-run:
+        logging.info(f"[DRY-RUN] {len(candidates)} arquivo(s) seriam removidos:")
+            for c in candidates:
+                age_days: = (datetime.now(timezone.utc) - c.mtime).days
+                logging.info(f"  {c.path} | ")
