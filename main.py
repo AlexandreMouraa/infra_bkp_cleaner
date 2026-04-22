@@ -1,6 +1,5 @@
 import argparse
 import logging
-import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -139,7 +138,7 @@ def main() -> int:
     args = build_parser().parse_args()
     setup_logger(args.log)
 
-    base = Path(args.Path)
+    base = Path(args.path)
 
     if not base.exists() or not base.is_dir():
         logging.error(f"Path inválido (não existe ou não é diretório): {base}")
@@ -152,15 +151,23 @@ def main() -> int:
                 )
         return 3
 
-    logging.info("Escaneando: {base.resolve()} (retenção: {args.days} dias, recursivo: {args.recursive})")
+    logging.info(f"Escaneando: {base.resolve()} (retenção: {args.days} dias, recursivo: {args.recursive})")
     candidates = collect_candidates(base, args.days, args.recursive)
 
     if not candidates:
         logging.info("Nenhum arquivo encontrado fora da renteção. Nada a fazer.")
         return 0
    
-    if args.dry-run:
+    if args.dry_run:
         logging.info(f"[DRY-RUN] {len(candidates)} arquivo(s) seriam removidos:")
-            for c in candidates:
-                age_days: = (datetime.now(timezone.utc) - c.mtime).days
-                logging.info(f"  {c.path} | ")
+        for c in candidates:
+            age_days = (datetime.now(timezone.utc) - c.mtime).days
+            logging.info(f"  {c.Path} |  {bytes_to_human(c.size_bytes)} | {age_days} dias")
+        print_summary(candidates, deleted=0, dry_run=True)
+        return 0
+    elif args.force:
+        
+
+
+
+    sys.exit(main())
